@@ -1,0 +1,273 @@
+/* Interações leves do front-end. Nenhuma regra importante depende deste arquivo:
+   login, cadastro, reservas e doações continuam validados pelo Django. */
+(function () {
+  "use strict";
+
+  const one = (selector, root = document) => root.querySelector(selector);
+  const all = (selector, root = document) => [
+    ...root.querySelectorAll(selector),
+  ];
+
+  const menuButton = one(".menu-toggle");
+  const publicMenu = one("#public-menu");
+  if (menuButton && publicMenu) {
+    menuButton.addEventListener("click", () => {
+      const aberto = publicMenu.classList.toggle("open");
+      menuButton.setAttribute("aria-expanded", String(aberto));
+    });
+  }
+
+  const dashMenu = one("#dash-menu");
+  const sidebar = one("#sidebar");
+  const backdrop = one("#drawer-backdrop");
+  const closeDrawer = () => {
+    sidebar?.classList.remove("open");
+    if (backdrop) backdrop.hidden = true;
+  };
+  dashMenu?.addEventListener("click", () => {
+    sidebar?.classList.add("open");
+    if (backdrop) backdrop.hidden = false;
+  });
+  backdrop?.addEventListener("click", closeDrawer);
+
+  const bell = one("#bell-button");
+  const notifications = one("#notification-pop");
+  bell?.addEventListener("click", () => {
+    if (notifications) notifications.hidden = !notifications.hidden;
+  });
+
+  all(".flash-message button").forEach((button) => {
+    button.addEventListener("click", () =>
+      button.closest(".flash-message")?.remove(),
+    );
+  });
+  window.setTimeout(
+    () => all(".flash-message").forEach((item) => item.remove()),
+    6500,
+  );
+
+  all(".faq-item button").forEach((button) => {
+    button.addEventListener("click", () => {
+      const answer = button.parentElement.querySelector("p");
+      const marker = button.querySelector("span");
+      if (!answer) return;
+      answer.hidden = !answer.hidden;
+      if (marker) marker.textContent = answer.hidden ? "+" : "−";
+    });
+  });
+
+  const roleGrid = one("[data-role-grid]");
+  roleGrid?.addEventListener("change", (event) => {
+    const input = event.target.closest("input[type=radio]");
+    if (!input) return;
+    all(".role-card", roleGrid).forEach((card) =>
+      card.classList.toggle("selected", card.contains(input)),
+    );
+  });
+
+  all("[data-confirm-form]").forEach((form) => {
+    form.addEventListener("submit", (event) => {
+      if (!window.confirm(form.dataset.confirmForm)) event.preventDefault();
+    });
+  });
+
+  const photoInput = one("#id_foto");
+  const photoPreview = one("#photo-preview");
+  photoInput?.addEventListener("change", () => {
+    const file = photoInput.files?.[0];
+    if (file && photoPreview) photoPreview.src = URL.createObjectURL(file);
+  });
+
+  const cepInput = one("#id_cep");
+  const cepFeedback = one("#cep-feedback");
+  const setValue = (id, value) => {
+    const field = one(`#${id}`);
+    if (field && value) field.value = value;
+  };
+  cepInput?.addEventListener("blur", async () => {
+    const cep = cepInput.value.replace(/\D/g, "");
+    if (cep.length !== 8) return;
+    if (cepFeedback) cepFeedback.textContent = "Consultando CEP...";
+    try {
+      const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+      const address = await response.json();
+      if (!response.ok || address.erro) throw new Error("CEP não encontrado");
+      setValue("id_logradouro", address.logradouro);
+      setValue("id_bairro", address.bairro);
+      setValue("id_cidade", address.localidade);
+      setValue("id_estado", address.uf);
+      if (cepFeedback)
+        cepFeedback.textContent =
+          "✓ Endereço preenchido automaticamente pela ViaCEP";
+    } catch (_) {
+      if (cepFeedback)
+        cepFeedback.textContent =
+          "Não foi possível consultar o CEP; preencha o endereço manualmente.";
+    }
+  });
+
+  one("[data-location-button]")?.addEventListener("click", () => {
+    if (!navigator.geolocation)
+      return window.alert("Geolocalização não disponível neste navegador.");
+    navigator.geolocation.getCurrentPosition(
+      () =>
+        window.alert(
+          "Localização obtida. Em produção, o mapa poderá ser centralizado neste ponto.",
+        ),
+      () =>
+        window.alert(
+          "Permita o acesso à localização no navegador para usar este recurso.",
+        ),
+    );
+  });
+
+  /* Gráficos SVG reais e responsivos da página Impacto. Os dados são
+     fornecidos pelo Django e cada aba redesenha linha, área, eixos e pontos. */
+  const svgNamespace = "http://www.w3.org/2000/svg";
+  const createSvg = (tag, attributes = {}) => {
+    const element = document.createElementNS(svgNamespace, tag);
+    Object.entries(attributes).forEach(([name, value]) =>
+      element.setAttribute(name, String(value)),
+    );
+    return element;
+  };
+
+  const formatChartValue = (value) =>
+    new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 1 }).format(value);
+
+  const chartCaptions = {
+    month: "Quilos destinados ao longo do mês",
+    quarter: "Quilos destinados nos últimos três meses",
+    year: "Quilos destinados ao longo do ano",
+  };
+
+  const renderLineChart = (chart, period) => {
+    const sourceId = chart.dataset.source;
+    const source = sourceId ? document.getElementById(sourceId) : null;
+    if (!source) return;
+
+    let datasets;
+    try {
+      datasets = JSON.parse(source.textContent);
+    } catch (_) {
+      return;
+    }
+    const dataset = datasets[period] || datasets[Object.keys(datasets)[0]];
+    if (!dataset?.labels?.length || !dataset?.values?.length) return;
+
+    const svg = one("svg", chart);
+    const grid = one("[data-chart-grid]", chart);
+    const area = one("[data-chart-area]", chart);
+    const line = one("[data-chart-line]", chart);
+    const points = one("[data-chart-points]", chart);
+    const labels = one("[data-chart-labels]", chart);
+    const tooltip = one(".chart-tooltip", chart);
+    if (!svg || !grid || !area || !line || !points || !labels) return;
+
+    const bounds = { left: 66, right: 654, top: 24, bottom: 222 };
+    const values = dataset.values.map((value) => Number(value) || 0);
+    const highest = Math.max(...values, 1);
+    const step = highest <= 100 ? 25 : highest <= 500 ? 100 : 300;
+    const maximum = Math.max(step, Math.ceil(highest / step) * step);
+    const ticks = 5;
+
+    grid.replaceChildren();
+    points.replaceChildren();
+    labels.replaceChildren();
+
+    for (let index = 0; index <= ticks; index += 1) {
+      const y = bounds.bottom - ((bounds.bottom - bounds.top) * index) / ticks;
+      grid.append(
+        createSvg("line", {
+          x1: bounds.left,
+          x2: bounds.right,
+          y1: y,
+          y2: y,
+        }),
+      );
+      const tickLabel = createSvg("text", { x: 10, y: y + 5 });
+      tickLabel.textContent = formatChartValue((maximum * index) / ticks);
+      grid.append(tickLabel);
+    }
+
+    const coordinates = values.map((value, index) => {
+      const divisor = Math.max(values.length - 1, 1);
+      const x = bounds.left + ((bounds.right - bounds.left) * index) / divisor;
+      const y = bounds.bottom - ((bounds.bottom - bounds.top) * value) / maximum;
+      return { x, y, value, label: dataset.labels[index] || "" };
+    });
+    const path = coordinates
+      .map(({ x, y }, index) => `${index ? "L" : "M"}${x.toFixed(2)} ${y.toFixed(2)}`)
+      .join(" ");
+    line.setAttribute("d", path);
+    area.setAttribute(
+      "d",
+      `${path} L${bounds.right} ${bounds.bottom} L${bounds.left} ${bounds.bottom} Z`,
+    );
+
+    coordinates.forEach(({ x, y, value, label: pointLabel }) => {
+      const circle = createSvg("circle", { cx: x, cy: y, r: 5.5 });
+      const title = createSvg("title");
+      title.textContent = `${pointLabel}: ${formatChartValue(value)} kg`;
+      circle.append(title);
+      if (tooltip) {
+        circle.addEventListener("pointerenter", () => {
+          tooltip.textContent = `${pointLabel} · ${formatChartValue(value)} kg`;
+          tooltip.style.left = `${(x / 680) * 100}%`;
+          tooltip.style.top = `${(y / 280) * 100}%`;
+          tooltip.hidden = false;
+        });
+        circle.addEventListener("pointerleave", () => {
+          tooltip.hidden = true;
+        });
+      }
+      points.append(circle);
+
+      const xLabel = createSvg("text", {
+        x,
+        y: 260,
+        "text-anchor": "middle",
+      });
+      xLabel.textContent = pointLabel;
+      labels.append(xLabel);
+    });
+
+    const caption = chart.closest(".chart-card")?.querySelector("[data-chart-caption]");
+    if (caption && chartCaptions[period]) caption.textContent = chartCaptions[period];
+    chart.dataset.activePeriod = period;
+    line.classList.remove("is-drawn");
+    window.requestAnimationFrame(() => line.classList.add("is-drawn"));
+  };
+
+  all("[data-line-chart]").forEach((chart) => {
+    const chartName = chart.dataset.lineChart;
+    const tabs = one(`[data-chart-tabs="${chartName}"]`);
+    const firstPeriod = one("[data-chart-period].active", tabs || document)?.dataset
+      .chartPeriod;
+    renderLineChart(chart, firstPeriod || "month");
+
+    all("[data-chart-period]", tabs || document).forEach((button) => {
+      button.addEventListener("click", () => {
+        all("[data-chart-period]", tabs).forEach((item) =>
+          item.classList.toggle("active", item === button),
+        );
+        renderLineChart(chart, button.dataset.chartPeriod);
+      });
+    });
+  });
+
+  all(".tabs button, .period-tabs button, .view-buttons button").forEach(
+    (button) => {
+      button.addEventListener("click", () => {
+        all("button", button.parentElement).forEach((item) =>
+          item.classList.remove("active"),
+        );
+        button.classList.add("active");
+      });
+    },
+  );
+
+  all("[data-print-button]").forEach((button) =>
+    button.addEventListener("click", () => window.print()),
+  );
+})();
