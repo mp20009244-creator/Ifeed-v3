@@ -13,6 +13,7 @@ from django.urls import reverse
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.http import require_POST
 
+from .firebase_admin_setup import verificar_token_firebase
 from .forms import CadastroForm, DoacaoForm, LoginForm, PerfilForm
 from .models import Doacao, Perfil
 
@@ -73,7 +74,7 @@ def _grafico_impacto_publico():
     """Séries demonstrativas da página pública, como na concept art aprovada."""
     return {
         "semester": {
-            "labels": ["01/05", "08/05", "15/05", "22/05", "29/05", "05/06"],
+            "labels": ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun"],
             "values": [320, 500, 450, 720, 1010, 1250],
         },
         "year": {
@@ -143,6 +144,50 @@ def cadastro_view(request):
     return render(request, "auth/cadastro.html", {"form": form})
 
 
+@require_POST
+def autenticar_google(request):
+    """Integra o login Firebase do projeto do Pedro com a sessão Django."""
+    try:
+        dados = json.loads(request.body or "{}")
+    except json.JSONDecodeError:
+        return JsonResponse({"status": "erro", "mensagem": "Dados inválidos."}, status=400)
+
+    id_token = dados.get("idToken")
+    if not id_token:
+        return JsonResponse({"status": "erro", "mensagem": "Token não enviado."}, status=400)
+
+    decoded, erro = verificar_token_firebase(id_token)
+    if erro:
+        return JsonResponse({"status": "erro", "mensagem": erro}, status=401)
+
+    uid = decoded.get("uid") or decoded.get("sub")
+    email = (decoded.get("email") or "").lower()
+    nome = decoded.get("name") or email.split("@")[0] or "Usuário iFeed"
+    if not uid or not email:
+        return JsonResponse(
+            {"status": "erro", "mensagem": "A conta Google não forneceu e-mail."},
+            status=400,
+        )
+
+    user = User.objects.filter(email__iexact=email).first()
+    if user is None:
+        user = User.objects.create_user(
+            username=f"google_{uid}",
+            email=email,
+            first_name=nome.split()[0],
+            last_name=" ".join(nome.split()[1:]),
+        )
+        user.set_unusable_password()
+        user.save(update_fields=["password"])
+
+    perfil = _perfil(user, tipo=dados.get("perfil", "doador"))
+    if dados.get("perfil") in {"doador", "recebedor"} and perfil.tipo != dados["perfil"]:
+        perfil.tipo = dados["perfil"]
+        perfil.save(update_fields=["tipo"])
+
+    django_login(request, user, backend="django.contrib.auth.backends.ModelBackend")
+    return JsonResponse({"status": "sucesso", "redirect": reverse("painel")})
+
 
 @require_POST
 def encerrar_sessao(request):
@@ -167,8 +212,10 @@ def painel(request):
     )
 
 
-@login_required
-def doacoes_disponiveis(request):
+
+def _doacoes_disponiveis_queryset(request):
+    """Compartilhado entre a página de busca e o endpoint JSON do mapa,
+    pra garantir que os dois sempre mostrem exatamente a mesma coisa."""
     busca = request.GET.get("q", "").strip()
     doacoes = (
         Doacao.objects.filter(status="disponivel")
@@ -181,12 +228,41 @@ def doacoes_disponiveis(request):
             | Q(categoria__icontains=busca)
             | Q(doador__perfil_ifeed__organizacao__icontains=busca)
         )
+    return doacoes, busca
+
+
+@login_required
+def doacoes_disponiveis(request):
+    doacoes, busca = _doacoes_disponiveis_queryset(request)
     return render(
         request,
         "internal/doacoes_disponiveis.html",
         {"doacoes": doacoes, "busca": busca},
     )
 
+
+@login_required
+def mapa_doacoes_dados(request):
+    """Endpoint  dedicado ao mapa"""
+    doacoes, _ = _doacoes_disponiveis_queryset(request)
+    doacoes = doacoes.filter(latitude__isnull=False, longitude__isnull=False)
+    dados = []
+    for doacao in doacoes:
+        perfil = getattr(doacao.doador, "perfil_ifeed", None)
+        organizacao = (perfil.organizacao if perfil else "") or doacao.doador.get_full_name()
+        dados.append({
+            "id": doacao.id,
+            "nome_alimento": doacao.nome_alimento,
+            "organizacao": organizacao,
+            "quantidade": doacao.quantidade_formatada,
+            "data_validade": doacao.data_validade.strftime("%d/%m"),
+            "foto_url": doacao.foto_url,
+            "latitude": float(doacao.latitude),
+            "longitude": float(doacao.longitude),
+            "urgente": doacao.esta_urgente,
+            "detalhe_url": reverse("doacao_detalhe", kwargs={"pk": doacao.pk}),
+        })
+    return JsonResponse({"doacoes": dados})
 
 @login_required
 def doacao_detalhe(request, pk):

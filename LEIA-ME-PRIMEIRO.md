@@ -7,7 +7,7 @@ O layout foi adaptado das imagens oficiais do protótipo para páginas web reais
 - páginas públicas contínuas e em largura total, sem molduras de storyboard;
 - painel interno ocupando toda a janela;
 - logo iFeed em PNG transparente, limpa e responsiva;
-- 40 elementos das concept arts separados individualmente em PNG transparente;
+- conjunto próprio de 36 ícones PNG locais em verde, amarelo e azul;
 - fotografias principais restauradas em alta resolução;
 - gráfico de Impacto interativo, responsivo e alimentado pelo Django;
 - identidade verde, amarela, azul e branca preservada;
@@ -16,7 +16,7 @@ O layout foi adaptado das imagens oficiais do protótipo para páginas web reais
 ## Forma mais fácil no Windows
 
 1. Extraia o ZIP.
-2. Abra a pasta `IFEED-DJANGO-CONCEPT-ART-FINAL` no VS Code.
+2. Abra a pasta `IFEED-DJANGO-VISUAL-FINAL` no VS Code.
 3. Dê dois cliques em `INICIAR_IFEED.bat`.
 4. Aguarde a instalação terminar. O navegador abrirá em `http://127.0.0.1:8000/`.
 
@@ -50,7 +50,18 @@ Depois, acesse `http://127.0.0.1:8000/`.
 - O cadastro com nome, e-mail e senha funciona totalmente pelo Django.
 - O login aceita o e-mail cadastrado e a senha.
 - As senhas são protegidas pelo sistema de autenticação do Django.
-- Não há login com Google ou Firebase nesta versão — apenas e-mail e senha.
+- O botão Google mantém a implementação Firebase iniciada no código do Pedro e cria uma sessão Django após validar o token.
+- Se o Firebase não estiver habilitado, o login normal por e-mail e senha continua funcionando.
+
+### Ativar o botão Google no Firebase
+
+1. Abra o Console do Firebase e selecione o projeto `ifeed-supremo`.
+2. Entre em **Authentication > Sign-in method**.
+3. Ative o provedor **Google**.
+4. Em **Settings > Authorized domains**, confirme `localhost`.
+5. Mantenha `static/js/firebase-config.js` com a configuração pública do projeto.
+
+O arquivo privado `firebase-service-account.json` é opcional no desenvolvimento local e está bloqueado pelo `.gitignore`. Nunca publique esse arquivo no GitHub.
 
 ## Páginas incluídas
 
@@ -67,9 +78,8 @@ Depois, acesse `http://127.0.0.1:8000/`.
 - `doacoes/`: banco, formulários, regras, rotas e testes;
 - `templates/`: páginas HTML organizadas por contexto;
 - `static/css/`: estilo visual principal e ajustes de formulários;
-- `static/js/`: interações, gráfico e ViaCEP;
-- `static/assets/icons/concept/`: os 40 PNGs separados das pranchas fornecidas;
-- `static/assets/icons/`: ícones locais usados pelas telas internas, sem CDN;
+- `static/js/`: interações, gráfico, ViaCEP e autenticação Google;
+- `static/assets/icons/`: 36 ícones PNG locais, sem CDN;
 - `static/assets/img/`: logo, selos e fotografias em alta resolução.
 
 O ZIP não inclui ambiente virtual, cache, `node_modules` ou arquivos temporários. O banco SQLite é criado automaticamente na primeira execução.
@@ -82,7 +92,7 @@ python manage.py test
 python manage.py createsuperuser
 ```
 
-O projeto possui 11 testes automatizados para páginas públicas, cadastro, login, ausência do Google/Firebase, proteção da área interna, reserva, renderização das abas internas, criação de doações, gráfico de Impacto e uso dos ícones das concept arts.
+O projeto possui nove testes automatizados para páginas públicas, cadastro, login, proteção da área interna, reserva, renderização das abas internas, criação de doações, gráfico de Impacto e selo Prata.
 
 ## Banco de dados
 

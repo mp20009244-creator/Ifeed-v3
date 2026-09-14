@@ -91,3 +91,8 @@ LOGIN_URL = "login"
 LOGIN_REDIRECT_URL = "painel"
 LOGOUT_REDIRECT_URL = "home"
 
+# A configuração pública do Firebase permanece no JavaScript do projeto do
+# Pedro. O backend utiliza apenas o identificador público do projeto; um arquivo
+# de serviço privado pode ser adicionado localmente, mas nunca é obrigatório.
+FIREBASE_PROJECT_ID = os.environ.get("FIREBASE_PROJECT_ID", "ifeed-supremo")
+FIREBASE_ADMIN_CREDENTIALS = BASE_DIR / "firebase-service-account.json"

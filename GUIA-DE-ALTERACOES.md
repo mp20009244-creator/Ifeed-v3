@@ -9,13 +9,11 @@
 | Painel e demais telas internas | `templates/internal/` |
 | Cabeçalho e rodapé públicos | `templates/base_public.html` |
 | Menu lateral interno | `templates/base_internal.html` |
-| Cores e layouts gerais | `static/css/ifeed.css` |
-| Fidelidade das páginas públicas às concept arts | `static/css/concept-art.css` |
+| Cores, tamanhos e layouts | `static/css/ifeed.css` |
 | Ajustes Django e formulários | `static/css/django-extra.css` |
 | Interações, gráfico e ViaCEP | `static/js/site.js` |
-| Ícones PNG gerais | `static/assets/icons/` e `static/js/icons.js` |
-| Ícones separados das concept arts | `static/assets/icons/concept/` |
-| Login e cadastro por e-mail | `templates/auth/`, `doacoes/forms.py` e `doacoes/views.py` |
+| Ícones PNG locais | `static/assets/icons/` e `static/js/icons.js` |
+| Login Google | `static/js/auth-django.js` e `firebase-config.js` |
 | Banco e campos de doação | `doacoes/models.py` |
 | Validações de formulários | `doacoes/forms.py` |
 | Regras e páginas | `doacoes/views.py` |
@@ -47,19 +45,15 @@ O selo de prata é `static/assets/img/badge-silver.png`. O arquivo possui margem
 - A renderização, troca de período, animação e tooltip estão em `static/js/site.js`.
 - O visual dos eixos, linha, área e botões está no bloco final de `static/css/ifeed.css`.
 
-## Layout expandido e concept arts
+## Layout expandido
 
-O arquivo `static/css/concept-art.css` controla a adaptação das referências para páginas web completas. Nele estão:
+O bloco `Refinamento visual 2026` no final de `static/css/ifeed.css` controla a adaptação das referências para a página inteira. Nele estão:
 
 - seções públicas em largura total;
 - espaçamento lateral responsivo;
 - barra lateral interna em altura total;
 - área principal sem moldura externa;
 - ajustes de login, cadastro, tablet e celular.
-
-Os ícones fornecidos nas pranchas foram separados individualmente, sem
-redesenho, e estão organizados em `static/assets/icons/concept/`. Para trocar
-um deles, mantenha o mesmo nome de arquivo e use PNG com fundo transparente.
 
 ## Adicionar um novo campo
 

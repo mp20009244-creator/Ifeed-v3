@@ -63,6 +63,8 @@
     all(".role-card", roleGrid).forEach((card) =>
       card.classList.toggle("selected", card.contains(input)),
     );
+    const googleButton = one("#google-login");
+    if (googleButton) googleButton.dataset.profile = input.value;
   });
 
   all("[data-confirm-form]").forEach((form) => {
@@ -106,21 +108,31 @@
     }
   });
 
-  one("[data-location-button]")?.addEventListener("click", () => {
-    if (!navigator.geolocation)
-      return window.alert("Geolocalização não disponível neste navegador.");
+  const doacaoLocationButton = one("#doacao-location-button");
+  const doacaoLocationStatus = one("#doacao-location-status");
+  const doacaoLatitude = one("#id_latitude");
+  const doacaoLongitude = one("#id_longitude");
+  doacaoLocationButton?.addEventListener("click", () => {
+    if (!navigator.geolocation) {
+      if (doacaoLocationStatus) doacaoLocationStatus.textContent = "Geolocalização não disponível neste navegador.";
+      return;
+    }
+    doacaoLocationButton.disabled = true;
+    if (doacaoLocationStatus) doacaoLocationStatus.textContent = "Obtendo localização...";
     navigator.geolocation.getCurrentPosition(
-      () =>
-        window.alert(
-          "Localização obtida. Em produção, o mapa poderá ser centralizado neste ponto.",
-        ),
-      () =>
-        window.alert(
-          "Permita o acesso à localização no navegador para usar este recurso.",
-        ),
+      (position) => {
+        if (doacaoLatitude) doacaoLatitude.value = position.coords.latitude.toFixed(6);
+        if (doacaoLongitude) doacaoLongitude.value = position.coords.longitude.toFixed(6);
+        if (doacaoLocationStatus) doacaoLocationStatus.textContent = "✓ Localização registrada.";
+        doacaoLocationButton.disabled = false;
+      },
+      () => {
+        if (doacaoLocationStatus) doacaoLocationStatus.textContent = "Permita o acesso à localização no navegador para usar este recurso.";
+        doacaoLocationButton.disabled = false;
+      },
     );
   });
-
+  
   /* Gráficos SVG reais e responsivos da página Impacto. Os dados são
      fornecidos pelo Django e cada aba redesenha linha, área, eixos e pontos. */
   const svgNamespace = "http://www.w3.org/2000/svg";
@@ -139,8 +151,6 @@
     month: "Quilos destinados ao longo do mês",
     quarter: "Quilos destinados nos últimos três meses",
     year: "Quilos destinados ao longo do ano",
-    semester: "Quilos destinados nos últimos seis meses",
-    all: "Quilos destinados em todo o período",
   };
 
   const renderLineChart = (chart, period) => {
@@ -234,9 +244,7 @@
       labels.append(xLabel);
     });
 
-    const caption = chart
-      .closest(".chart-card, .public-chart-card")
-      ?.querySelector("[data-chart-caption]");
+    const caption = chart.closest(".chart-card")?.querySelector("[data-chart-caption]");
     if (caption && chartCaptions[period]) caption.textContent = chartCaptions[period];
     chart.dataset.activePeriod = period;
     line.classList.remove("is-drawn");
@@ -246,19 +254,15 @@
   all("[data-line-chart]").forEach((chart) => {
     const chartName = chart.dataset.lineChart;
     const tabs = one(`[data-chart-tabs="${chartName}"]`);
-    const tabButtons = tabs ? all("[data-chart-period]", tabs) : [];
-    const firstPeriod = tabButtons.find((button) =>
-      button.classList.contains("active"),
-    )?.dataset.chartPeriod;
+    const firstPeriod = one("[data-chart-period].active", tabs || document)?.dataset
+      .chartPeriod;
     renderLineChart(chart, firstPeriod || "month");
 
-    tabButtons.forEach((button) => {
+    all("[data-chart-period]", tabs || document).forEach((button) => {
       button.addEventListener("click", () => {
-        tabButtons.forEach((item) => {
-          const active = item === button;
-          item.classList.toggle("active", active);
-          item.setAttribute("aria-pressed", String(active));
-        });
+        all("[data-chart-period]", tabs).forEach((item) =>
+          item.classList.toggle("active", item === button),
+        );
         renderLineChart(chart, button.dataset.chartPeriod);
       });
     });
