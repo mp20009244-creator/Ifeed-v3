@@ -70,6 +70,11 @@ class IFeedFlowTests(TestCase):
         response = self.client.post(reverse("login"), {"identificador": "doador@teste.com", "senha": "Teste@12345"})
         self.assertRedirects(response, reverse("painel"))
 
+    def test_login_nao_oferece_google_ou_firebase(self):
+        response = self.client.get(reverse("login"))
+        self.assertNotContains(response, "Continuar com o Google")
+        self.assertNotContains(response, "firebase", html=False)
+
     def test_area_interna_exige_login(self):
         response = self.client.get(reverse("painel"))
         self.assertEqual(response.status_code, 302)
@@ -105,6 +110,13 @@ class IFeedFlowTests(TestCase):
         self.assertContains(response, 'data-chart-period="month"')
         self.assertContains(response, 'data-chart-period="quarter"')
         self.assertContains(response, 'data-chart-period="year"')
+
+    def test_grafico_publico_e_icones_das_concept_arts(self):
+        response = self.client.get(reverse("impacto_publico"))
+        self.assertContains(response, 'id="public-impact-chart-data"')
+        self.assertContains(response, 'data-chart-period="semester"')
+        self.assertContains(response, "assets/icons/concept/env-reduce.png")
+        self.assertContains(response, "assets/icons/concept/calc-history.png")
 
     def test_selo_prata_usa_png_completo(self):
         self.client.force_login(self.doador)
