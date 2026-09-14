@@ -139,6 +139,8 @@
     month: "Quilos destinados ao longo do mês",
     quarter: "Quilos destinados nos últimos três meses",
     year: "Quilos destinados ao longo do ano",
+    semester: "Quilos destinados nos últimos seis meses",
+    all: "Quilos destinados em todo o período",
   };
 
   const renderLineChart = (chart, period) => {
@@ -232,7 +234,9 @@
       labels.append(xLabel);
     });
 
-    const caption = chart.closest(".chart-card")?.querySelector("[data-chart-caption]");
+    const caption = chart
+      .closest(".chart-card, .public-chart-card")
+      ?.querySelector("[data-chart-caption]");
     if (caption && chartCaptions[period]) caption.textContent = chartCaptions[period];
     chart.dataset.activePeriod = period;
     line.classList.remove("is-drawn");
@@ -242,15 +246,19 @@
   all("[data-line-chart]").forEach((chart) => {
     const chartName = chart.dataset.lineChart;
     const tabs = one(`[data-chart-tabs="${chartName}"]`);
-    const firstPeriod = one("[data-chart-period].active", tabs || document)?.dataset
-      .chartPeriod;
+    const tabButtons = tabs ? all("[data-chart-period]", tabs) : [];
+    const firstPeriod = tabButtons.find((button) =>
+      button.classList.contains("active"),
+    )?.dataset.chartPeriod;
     renderLineChart(chart, firstPeriod || "month");
 
-    all("[data-chart-period]", tabs || document).forEach((button) => {
+    tabButtons.forEach((button) => {
       button.addEventListener("click", () => {
-        all("[data-chart-period]", tabs).forEach((item) =>
-          item.classList.toggle("active", item === button),
-        );
+        tabButtons.forEach((item) => {
+          const active = item === button;
+          item.classList.toggle("active", active);
+          item.setAttribute("aria-pressed", String(active));
+        });
         renderLineChart(chart, button.dataset.chartPeriod);
       });
     });

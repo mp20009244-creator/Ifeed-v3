@@ -7,7 +7,7 @@ O layout foi adaptado das imagens oficiais do protótipo para páginas web reais
 - páginas públicas contínuas e em largura total, sem molduras de storyboard;
 - painel interno ocupando toda a janela;
 - logo iFeed em PNG transparente, limpa e responsiva;
-- conjunto próprio de 36 ícones PNG locais em verde, amarelo e azul;
+- 40 elementos das concept arts separados individualmente em PNG transparente;
 - fotografias principais restauradas em alta resolução;
 - gráfico de Impacto interativo, responsivo e alimentado pelo Django;
 - identidade verde, amarela, azul e branca preservada;
@@ -16,7 +16,7 @@ O layout foi adaptado das imagens oficiais do protótipo para páginas web reais
 ## Forma mais fácil no Windows
 
 1. Extraia o ZIP.
-2. Abra a pasta `IFEED-DJANGO-VISUAL-FINAL` no VS Code.
+2. Abra a pasta `IFEED-DJANGO-CONCEPT-ART-FINAL` no VS Code.
 3. Dê dois cliques em `INICIAR_IFEED.bat`.
 4. Aguarde a instalação terminar. O navegador abrirá em `http://127.0.0.1:8000/`.
 
@@ -68,7 +68,8 @@ Depois, acesse `http://127.0.0.1:8000/`.
 - `templates/`: páginas HTML organizadas por contexto;
 - `static/css/`: estilo visual principal e ajustes de formulários;
 - `static/js/`: interações, gráfico e ViaCEP;
-- `static/assets/icons/`: 36 ícones PNG locais, sem CDN;
+- `static/assets/icons/concept/`: os 40 PNGs separados das pranchas fornecidas;
+- `static/assets/icons/`: ícones locais usados pelas telas internas, sem CDN;
 - `static/assets/img/`: logo, selos e fotografias em alta resolução.
 
 O ZIP não inclui ambiente virtual, cache, `node_modules` ou arquivos temporários. O banco SQLite é criado automaticamente na primeira execução.
@@ -81,7 +82,7 @@ python manage.py test
 python manage.py createsuperuser
 ```
 
-O projeto possui nove testes automatizados para páginas públicas, cadastro, login, proteção da área interna, reserva, renderização das abas internas, criação de doações, gráfico de Impacto e selo Prata.
+O projeto possui 11 testes automatizados para páginas públicas, cadastro, login, ausência do Google/Firebase, proteção da área interna, reserva, renderização das abas internas, criação de doações, gráfico de Impacto e uso dos ícones das concept arts.
 
 ## Banco de dados
 

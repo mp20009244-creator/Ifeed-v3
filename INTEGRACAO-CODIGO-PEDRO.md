@@ -1,25 +1,26 @@
 # Integração do código do Pedro
 
-O ZIP recebido foi usado como ponto de partida do projeto. A estrutura Django, o app `doacoes`, a ideia do endpoint de doações e a configuração pública do Firebase foram preservados e reorganizados.
+O código recebido foi preservado como base do projeto: Django, app
+`doacoes`, banco SQLite, formulários, reservas, coletas, painel e endpoint
+JSON continuam integrados.
 
-## Correções realizadas
+## Autenticação atual
 
-1. O Firebase não bloqueia mais a inicialização do Django quando o arquivo privado não existe.
-2. O login Google agora troca o token Firebase por uma sessão autenticada do Django.
-3. Foi adicionado login normal por e-mail e senha como alternativa sempre disponível.
-4. Foi criado o cadastro completo de doador ou recebedor.
-5. As informações deixaram de depender do `localStorage` e passaram a usar modelos Django e SQLite.
-6. Doações, reservas, coletas, impacto, reconhecimento e perfil foram conectados ao banco.
-7. Formulários possuem CSRF, validação no servidor, restrição de proprietário e mensagens de resultado.
-8. O carregamento de fotos usa `FileField`, sem exigir Pillow.
-9. O front-end antigo concentrado em um único JavaScript foi separado em templates, CSS e scripts de responsabilidade clara.
-10. Node, Vite e React foram removidos da execução.
+- O acesso usa somente a autenticação nativa do Django por e-mail/usuário e
+  senha.
+- O cadastro cria a conta e o perfil de doador ou recebedor no banco.
+- Não há Firebase, OAuth, botão Google nem arquivos de configuração do Google.
+- Páginas internas continuam protegidas por sessão e `login_required`.
 
-## Arquivos diretamente relacionados
+## Organização visual
 
-- `doacoes/firebase_admin_setup.py`: validação segura e opcional do Firebase.
-- `doacoes/views.py`: sessão Django, login, cadastro e regras da plataforma.
-- `doacoes/models.py`: dados persistentes.
-- `static/js/firebase-config.js`: configuração pública original do Firebase.
-- `static/js/auth-django.js`: integração Google/Firebase com Django.
-- `templates/auth/`: formulários funcionais de entrada e cadastro.
+- `static/css/ifeed.css`: sistema visual compartilhado e área interna.
+- `static/css/django-extra.css`: formulários e componentes ligados ao Django.
+- `static/css/concept-art.css`: fidelidade das páginas públicas às concept
+  arts.
+- `static/assets/icons/concept/`: ícones fornecidos, separados um a um em
+  PNG transparente.
+- `static/js/site.js`: menu, FAQ, ViaCEP e gráficos interativos.
+
+O projeto não depende de Node, Vite, React ou serviços externos de
+autenticação para iniciar no VS Code.

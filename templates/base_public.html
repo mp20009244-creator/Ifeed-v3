@@ -9,8 +9,9 @@
   <link rel="icon" type="image/png" href="{% static 'favicon.png' %}">
   <link rel="stylesheet" href="{% static 'css/ifeed.css' %}">
   <link rel="stylesheet" href="{% static 'css/django-extra.css' %}">
+  <link rel="stylesheet" href="{% static 'css/concept-art.css' %}">
 </head>
-<body class="public-page">
+<body class="public-page {% block body_class %}{% endblock %}">
   <a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
   <header class="public-header">
     <div class="public-nav container-wide">

@@ -73,7 +73,7 @@ def _grafico_impacto_publico():
     """Séries demonstrativas da página pública, como na concept art aprovada."""
     return {
         "semester": {
-            "labels": ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun"],
+            "labels": ["01/05", "08/05", "15/05", "22/05", "29/05", "05/06"],
             "values": [320, 500, 450, 720, 1010, 1250],
         },
         "year": {
