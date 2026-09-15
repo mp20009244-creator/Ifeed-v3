@@ -63,8 +63,6 @@
     all(".role-card", roleGrid).forEach((card) =>
       card.classList.toggle("selected", card.contains(input)),
     );
-    const googleButton = one("#google-login");
-    if (googleButton) googleButton.dataset.profile = input.value;
   });
 
   all("[data-confirm-form]").forEach((form) => {
@@ -108,31 +106,21 @@
     }
   });
 
-  const doacaoLocationButton = one("#doacao-location-button");
-  const doacaoLocationStatus = one("#doacao-location-status");
-  const doacaoLatitude = one("#id_latitude");
-  const doacaoLongitude = one("#id_longitude");
-  doacaoLocationButton?.addEventListener("click", () => {
-    if (!navigator.geolocation) {
-      if (doacaoLocationStatus) doacaoLocationStatus.textContent = "Geolocalização não disponível neste navegador.";
-      return;
-    }
-    doacaoLocationButton.disabled = true;
-    if (doacaoLocationStatus) doacaoLocationStatus.textContent = "Obtendo localização...";
+  one("[data-location-button]")?.addEventListener("click", () => {
+    if (!navigator.geolocation)
+      return window.alert("Geolocalização não disponível neste navegador.");
     navigator.geolocation.getCurrentPosition(
-      (position) => {
-        if (doacaoLatitude) doacaoLatitude.value = position.coords.latitude.toFixed(6);
-        if (doacaoLongitude) doacaoLongitude.value = position.coords.longitude.toFixed(6);
-        if (doacaoLocationStatus) doacaoLocationStatus.textContent = "✓ Localização registrada.";
-        doacaoLocationButton.disabled = false;
-      },
-      () => {
-        if (doacaoLocationStatus) doacaoLocationStatus.textContent = "Permita o acesso à localização no navegador para usar este recurso.";
-        doacaoLocationButton.disabled = false;
-      },
+      () =>
+        window.alert(
+          "Localização obtida. Em produção, o mapa poderá ser centralizado neste ponto.",
+        ),
+      () =>
+        window.alert(
+          "Permita o acesso à localização no navegador para usar este recurso.",
+        ),
     );
   });
-  
+
   /* Gráficos SVG reais e responsivos da página Impacto. Os dados são
      fornecidos pelo Django e cada aba redesenha linha, área, eixos e pontos. */
   const svgNamespace = "http://www.w3.org/2000/svg";
@@ -283,3 +271,24 @@
     button.addEventListener("click", () => window.print()),
   );
 })();
+document.addEventListener('DOMContentLoaded', () => {
+  const tabButtons = document.querySelectorAll('.tab-btn');
+  const tabContents = document.querySelectorAll('.tab-content');
+
+  tabButtons.forEach(button => {
+    button.addEventListener('click', () => {
+      const targetTab = button.getAttribute('data-tab');
+
+      // Remove o estado ativo de todas as abas e seções
+      tabButtons.forEach(btn => btn.classList.remove('active'));
+      tabContents.forEach(content => content.classList.remove('active'));
+
+      // Ativa o botão clicado e a seção correspondente
+      button.classList.add('active');
+      const activeSection = document.getElementById(targetTab);
+      if (activeSection) {
+        activeSection.classList.add('active');
+      }
+    });
+  });
+});

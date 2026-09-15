@@ -12,13 +12,11 @@ urlpatterns = [
     # Contas
     path("entrar/", views.login_view, name="login"),
     path("cadastro/", views.cadastro_view, name="cadastro"),
-    path("contas/google/", views.autenticar_google, name="auth_google"),
     path("sair/", views.encerrar_sessao, name="logout"),
 
     # Área interna
     path("painel/", views.painel, name="painel"),
     path("doacoes-disponiveis/", views.doacoes_disponiveis, name="doacoes_disponiveis"),
-    path("doacoes-disponiveis/dados/", views.mapa_doacoes_dados, name="mapa_doacoes_dados"),
     path("doacoes/<int:pk>/", views.doacao_detalhe, name="doacao_detalhe"),
     path("doacoes/<int:pk>/reservar/", views.reservar_doacao, name="reservar_doacao"),
     path("minhas-coletas/", views.minhas_coletas, name="minhas_coletas"),

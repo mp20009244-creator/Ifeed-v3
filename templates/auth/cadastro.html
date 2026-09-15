@@ -4,38 +4,32 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Crie sua conta iFeed como doador ou recebedor.">
+  <meta name="description" content="Crie sua conta no iFeed para doar ou receber alimentos e acompanhar o impacto social.">
   <title>Cadastro | iFeed</title>
   <link rel="stylesheet" href="{% static 'css/ifeed.css' %}">
   <link rel="stylesheet" href="{% static 'css/django-extra.css' %}">
 </head>
 <body class="auth-page">
-  <main class="auth-shell signup-shell">
-    <a class="auth-logo logo" href="{% url 'home' %}" aria-label="Voltar ao início"><img src="{% static 'assets/img/logo-ifeed.png' %}" alt="Logo iFeed"></a>
-    <section class="auth-visual">
+  <main class="auth-shell auth-register-shell">
+    <a class="auth-logo logo" href="{% url 'home' %}" aria-label="Voltar ao início">
+      <img src="{% static 'assets/img/logo-ifeed.png' %}" alt="Logo iFeed">
+    </a>
+
+    <section class="auth-visual" aria-label="Apresentação do cadastro">
       <a class="back-link" href="{% url 'home' %}"><span data-icon="arrow-left"></span>Voltar para o início</a>
       <div class="auth-copy">
-        <h1>Faça parte da rede<br>que transforma<br>alimentos em<br><em>esperança.</em></h1>
-        <p>Cadastre-se para doar, receber e acompanhar cada etapa da conexão.</p>
+        <h1>Faça parte<br>da rede que<br><em>alimenta.</em></h1>
+        <p>Crie sua conta em poucos minutos e comece a doar ou receber alimentos com segurança.</p>
       </div>
-      <img class="signup-photo" src="{% static 'assets/img/signup-people.png' %}" alt="Duas pessoas entregando uma caixa de alimentos">
-      <div class="auth-benefits">
-        <div><span class="auth-icon" data-icon="clipboard-check"></span><span>Cadastro<br>simples</span></div>
-        <div><span class="auth-icon" data-icon="shield"></span><span>Processo<br>transparente</span></div>
-        <div><span class="auth-icon" data-icon="chart"></span><span>Impacto<br>acompanhado</span></div>
-      </div>
+      <img class="login-photo" src="{% static 'assets/img/signup-people.png' %}" alt="Pessoas participando de ações solidárias">
     </section>
 
-    <section class="auth-form register-form-wrap">
+    <section class="auth-form">
       <div class="auth-form-inner register-form">
         <span class="section-tag"><span data-icon="user"></span>Crie sua conta</span>
         <h2>Comece sua jornada no iFeed</h2>
         <p>Cadastre os dados básicos e escolha como você quer participar.</p>
         {% include 'includes/messages.html' %}
-
-        <button class="google-button" id="google-login" type="button" data-google-url="{% url 'auth_google' %}" data-profile="{{ form.tipo.value|default:'doador' }}"><span class="google-g">G</span> Continuar com Google</button>
-        <p class="secure-line" id="google-status">Se preferir, o cadastro também funciona sem Google.</p>
-        <div class="auth-divider"><span>cadastro completo pelo Django</span></div>
 
         <form class="django-auth-form" method="post" novalidate>
           {% csrf_token %}
@@ -73,6 +67,5 @@
   </main>
   <script src="{% static 'js/icons.js' %}" defer></script>
   <script src="{% static 'js/site.js' %}" defer></script>
-  <script type="module" src="{% static 'js/auth-django.js' %}"></script>
 </body>
 </html>

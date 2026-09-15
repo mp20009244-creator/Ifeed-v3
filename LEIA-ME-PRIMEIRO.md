@@ -50,18 +50,7 @@ Depois, acesse `http://127.0.0.1:8000/`.
 - O cadastro com nome, e-mail e senha funciona totalmente pelo Django.
 - O login aceita o e-mail cadastrado e a senha.
 - As senhas são protegidas pelo sistema de autenticação do Django.
-- O botão Google mantém a implementação Firebase iniciada no código do Pedro e cria uma sessão Django após validar o token.
-- Se o Firebase não estiver habilitado, o login normal por e-mail e senha continua funcionando.
-
-### Ativar o botão Google no Firebase
-
-1. Abra o Console do Firebase e selecione o projeto `ifeed-supremo`.
-2. Entre em **Authentication > Sign-in method**.
-3. Ative o provedor **Google**.
-4. Em **Settings > Authorized domains**, confirme `localhost`.
-5. Mantenha `static/js/firebase-config.js` com a configuração pública do projeto.
-
-O arquivo privado `firebase-service-account.json` é opcional no desenvolvimento local e está bloqueado pelo `.gitignore`. Nunca publique esse arquivo no GitHub.
+- Não há login com Google ou Firebase nesta versão — apenas e-mail e senha.
 
 ## Páginas incluídas
 
@@ -78,7 +67,7 @@ O arquivo privado `firebase-service-account.json` é opcional no desenvolvimento
 - `doacoes/`: banco, formulários, regras, rotas e testes;
 - `templates/`: páginas HTML organizadas por contexto;
 - `static/css/`: estilo visual principal e ajustes de formulários;
-- `static/js/`: interações, gráfico, ViaCEP e autenticação Google;
+- `static/js/`: interações, gráfico e ViaCEP;
 - `static/assets/icons/`: 36 ícones PNG locais, sem CDN;
 - `static/assets/img/`: logo, selos e fotografias em alta resolução.
 
