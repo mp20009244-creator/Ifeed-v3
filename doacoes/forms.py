@@ -124,6 +124,8 @@ class DoacaoForm(forms.ModelForm):
             "descricao": forms.Textarea(attrs={"rows": 4}),
             "estado": forms.TextInput(attrs={"maxlength": 2}),
             "foto": forms.FileInput(attrs={"accept": "image/jpeg,image/png,image/webp"}),
+            "latitude": forms.HiddenInput(),
+            "longitude": forms.HiddenInput(),
         }
 
     def clean_foto(self):

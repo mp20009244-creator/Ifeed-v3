@@ -1241,6 +1241,24 @@ button {
   color: var(--muted);
   margin-bottom: 25px;
 }
+.google-button {
+  width: 100%;
+  height: 58px;
+  border: 1.5px solid var(--green);
+  background: #fff;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 17px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+}
+.google-g {
+  font-weight: 900;
+  font-size: 26px;
+  color: #4285f4;
+}
 .secure-line {
   text-align: center;
   color: #88919c;
@@ -2424,16 +2442,7 @@ button {
   position: relative;
   overflow: hidden;
 }
-.map-panel:after {
-  content: "OpenStreetMap";
-  position: absolute;
-  right: 8px;
-  bottom: 7px;
-  background: rgba(255, 255, 255, 0.92);
-  padding: 4px 7px;
-  border-radius: 4px;
-  font-size: 10px;
-}
+
 .map-pin {
   position: absolute;
   width: 32px;
@@ -4792,4 +4801,38 @@ body {
   .public-line-chart {
     min-height: 210px;
   }
+}
+
+#donation-map {
+  position: absolute;
+  inset: 0;
+}
+.map-legend {
+  z-index: 1000;
+}
+.donation-popup {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+.donation-popup img {
+  width: 64px;
+  height: 52px;
+  object-fit: cover;
+  border-radius: 6px;
+}
+.donation-popup strong,
+.donation-popup span,
+.donation-popup a {
+  display: block;
+}
+.donation-popup span {
+  font-size: 12px;
+  color: var(--muted);
+  margin: 3px 0;
+}
+.donation-popup a {
+  color: var(--green);
+  font-weight: 700;
+  font-size: 12px;
 }

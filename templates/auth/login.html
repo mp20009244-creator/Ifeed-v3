@@ -33,9 +33,16 @@
       <div class="auth-form-inner">
         <span class="section-tag"><span data-icon="lock"></span>Acesso seguro</span>
         <h2>Bem-vindo ao iFeed</h2>
-        <p>Entre com seu e-mail e senha para acessar a plataforma.</p>
+        <p>Entre com seu e-mail e senha ou use sua conta Google.</p>
 
         {% include 'includes/messages.html' %}
+
+        <button class="google-button" id="google-login" type="button" data-google-url="{% url 'auth_google' %}" data-profile="doador">
+          <span class="google-g">G</span> Continuar com Google
+        </button>
+        <p class="secure-line" id="google-status">Autenticação segura via Google</p>
+
+        <div class="auth-divider"><span>ou entre com sua conta iFeed</span></div>
 
         <form class="django-auth-form" method="post" novalidate>
           {% csrf_token %}
@@ -51,7 +58,7 @@
           <button class="btn btn-primary btn-full auth-submit" type="submit">Entrar na plataforma</button>
         </form>
 
-        <div class="security-note"><span class="auth-icon small" data-icon="shield"></span><span>Suas credenciais são protegidas pelo sistema de autenticação do iFeed.</span></div>
+        <div class="security-note"><span class="auth-icon small" data-icon="shield"></span><span>O iFeed nunca solicita sua senha Google. O acesso acontece pelo provedor oficial.</span></div>
         <p class="auth-switch">Ainda não tem uma conta? <a href="{% url 'cadastro' %}">Cadastre-se</a></p>
         <div class="auth-footer"><span>Termos de uso</span><span>Política de privacidade</span><span>© 2026 iFeed</span></div>
       </div>
@@ -59,5 +66,6 @@
   </main>
   <script src="{% static 'js/icons.js' %}" defer></script>
   <script src="{% static 'js/site.js' %}" defer></script>
+  <script type="module" src="{% static 'js/auth-django.js' %}"></script>
 </body>
 </html>

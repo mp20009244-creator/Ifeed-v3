@@ -1,9 +1,10 @@
+from datetime import date, datetime, timedelta
 from decimal import Decimal
 
 from django.conf import settings
 from django.db import models
 from django.urls import reverse
-
+from django.utils import timezone
 
 class Perfil(models.Model):
     """Informações complementares da conta Django."""
@@ -49,6 +50,7 @@ class Doacao(models.Model):
         ("disponivel", "Disponível"),
         ("reservada", "Reservada"),
         ("coletada", "Coletada"),
+        ("a_caminho", "A caminho"),
         ("entregue", "Entregue"),
         ("pausada", "Pausada"),
         ("cancelada", "Cancelada"),
@@ -109,6 +111,8 @@ class Doacao(models.Model):
     bairro = models.CharField(max_length=100, blank=True)
     cidade = models.CharField(max_length=100)
     estado = models.CharField(max_length=2)
+    latitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
+    longitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="disponivel")
     criado_em = models.DateTimeField(auto_now_add=True)
     atualizado_em = models.DateTimeField(auto_now=True)
@@ -155,3 +159,15 @@ class Doacao(models.Model):
         if self.unidade == "litros":
             return self.quantidade
         return self.quantidade * Decimal("0.40")
+    
+    @property
+    def esta_urgente(self):
+        if self.status not in ("disponivel", "reservada"):
+            return False
+        limite = datetime.combine(date.today(), self.horario_fim) - timedelta(minutes=90)
+        agora = datetime.combine(date.today(), timezone.localtime().time())
+        return agora >= limite
+
+    @property
+    def tem_localizacao(self):
+        return self.latitude is not None and self.longitude is not None
